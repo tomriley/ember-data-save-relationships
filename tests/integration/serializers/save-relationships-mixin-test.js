@@ -52,7 +52,10 @@ module('serializers/save-relationships-mixin', {
       name: DS.attr(),
       album: DS.belongsTo('album')
     });
+
+    const ConfigEnv = EmberObject.extend();
     
+    registry.register('config:environment', ConfigEnv);
     registry.register('model:contact-person', ContactPerson);
     registry.register('model:artist', Artist);
     registry.register('model:album', Album);

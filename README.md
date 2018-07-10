@@ -108,6 +108,12 @@ More info: http://emberigniter.com/saving-models-relationships-json-api/
   ```
  - Calling `serialize: true` on cyclic dependencies will result in a stack overflow
  - At this point in time, if your server returns updated `attributes`, these will **not** be updated in the Ember Data store
+ - The internal model temporary `__id__` key is configurable via an environment config:
+ ```
+ ENV['ember-data-save-relationships'] = {
+   internalModelKey: '--id--'
+ };
+ ```
 
 ## Issues
 
