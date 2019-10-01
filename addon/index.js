@@ -1,8 +1,19 @@
 import Mixin from '@ember/object/mixin';
 import Ember from 'ember';
 import { singularize } from 'ember-inflector';
+import { get, computed } from '@ember/object';
+import { getOwner } from '@ember/application';
 
 export default Mixin.create({
+
+  internalModelKey: computed(function() {
+    var applicationConfig = getOwner(this).resolveRegistration('config:environment');
+    if (applicationConfig['ember-data-save-relationships'] && applicationConfig['ember-data-save-relationships']['internalModelKey']) {
+      return applicationConfig['ember-data-save-relationships']['internalModelKey'];
+    } else {
+      return '__id__';
+    }
+  }),
 
   serializeRelationship(snapshot, data, rel) {
     const relKind = rel.kind;
@@ -51,8 +62,9 @@ export default Mixin.create({
       {
         serialized.data.attributes = {};
       }
-      serialized.data.attributes.__id__ = obj.record.get('_internalModel')[Ember.GUID_KEY];
-      this.get('_visitedRecordIds')[serialized.data.attributes.__id__] = {};
+      let internalModelKey = get(this, 'internalModelKey');
+      serialized.data.attributes[internalModelKey] = obj.record.get('_internalModel')[Ember.GUID_KEY];
+      this.get('_visitedRecordIds')[serialized.data.attributes[internalModelKey]] = {};
     }
 
 
@@ -86,13 +98,14 @@ export default Mixin.create({
   },
 
   updateRecord(json, store) {
-    if (json.attributes !== undefined && json.attributes.__id__ !== undefined)
+    let internalModelKey = get(this, 'internalModelKey');
+    if (json.attributes !== undefined && json.attributes[internalModelKey] !== undefined)
     {
       json.type = singularize(json.type);
 
       const record = store.peekAll(json.type)
         .filterBy('currentState.stateName', "root.loaded.created.uncommitted")
-        .findBy('_internalModel.' + Ember.GUID_KEY, json.attributes.__id__);
+        .findBy('_internalModel.' + Ember.GUID_KEY, json.attributes[internalModelKey]);
 
       if (record) {
         // record.unloadRecord();
