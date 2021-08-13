@@ -63,7 +63,8 @@ export default Mixin.create({
         serialized.data.attributes = {};
       }
       let internalModelKey = get(this, 'internalModelKey');
-      serialized.data.attributes[internalModelKey] = obj.record.get('_internalModel')[Ember.GUID_KEY];
+      serialized.data[internalModelKey] = obj.record.get('_internalModel')[Ember.GUID_KEY];
+      serialized.data['method'] = 'create';
       this.get('_visitedRecordIds')[serialized.data.attributes[internalModelKey]] = {};
     }
 
